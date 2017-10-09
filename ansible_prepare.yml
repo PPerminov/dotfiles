@@ -1,0 +1,151 @@
+- hosts:                all
+  gather_facts:         yes
+  vars:
+    src_filepath:       /ansible/yum_repos
+    dstkey_filepath:    /etc/pki/rpm-gpg
+  tasks:
+    - block:
+      - copy:
+          src:            "{{ src_filepath }}/{{ item }}"
+          dest:           "{{ dstkey_filepath }}/{{ item }}"
+          owner:          root
+          group:          root
+          mode:           0644
+        with_items:
+          - epel.pub
+          - elrepo.pub
+          - ius.pub
+          - nux.pub
+
+      - yum_repository:
+          name:           "{{ item.name }}"
+          description:    "{{ item.desc }}"
+          enabled:        "{{ item.enabled }}"
+          baseurl:        "{{ item.base }}"
+          metalink:       "{{ item.meta }}"
+          gpgkey:         "{{ item.key }}"
+          failovermethod: priority
+          gpgcheck:       yes
+          file:           "{{ item.name }}"
+        with_items:
+          - { name: 'epel', desc: 'EPEL YUM repo', enabled: 'yes', base: 'http://download.fedoraproject.org/pub/epel/7/$basearch', meta: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch', key: 'file://{{ dstkey_filepath }}/epel.pub' }
+          - { name: 'epel-debuginfo', desc: 'EPEL YUM DEBUG repo', enabled: 'no', base: 'http://download.fedoraproject.org/pub/epel/7/$basearch/debug', meta: 'https://mirrors.fedoraproject.org/metalink?repo=epel-debug-7&arch=$basearch', key: 'file://{{ dstkey_filepath }}/epel.pub' }
+          - { name: 'epel-source', desc: 'EPEL YUM SRC repo', enabled: 'no', base: 'http://download.fedoraproject.org/pub/epel/7/SRPMS', meta: 'https://mirrors.fedoraproject.org/metalink?repo=epel-source-7&arch=$basearch', key: 'file://{{ dstkey_filepath }}/epel.pub' }
+
+      - yum_repository:
+          name:           centosplus
+          state:          absent
+
+      - yum_repository:
+          name:           "{{ item.name }}"
+          description:    "{{ item.desc }}"
+          enabled:        "{{ item.enabled }}"
+          baseurl:        "{{ item.base }}"
+          mirrorlist:     "{{ item.mirrors }}"
+          gpgkey:         "{{ item.key }}"
+          gpgcheck:       yes
+          file:           "{{ item.name }}"
+        with_items:
+          - { name: 'centosplus', desc: 'CentOS-$releasever - Plus', enabled: 'yes', base: 'http://mirror.centos.org/centos/$releasever/centosplus/$basearch/', mirrors: 'http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=centosplus&infra=$infra', key: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7' }
+          - { name: 'elrepo', desc: 'ELREPO', enabled: 'yes', base: 'http://elrepo.org/linux/elrepo/el7/$basearch/', mirrors: 'http://mirrors.elrepo.org/mirrors-elrepo.el7', key: 'file://{{ dstkey_filepath }}/elrepo.pub' }
+          - { name: 'elrepo-testing', desc: 'ELRepo.org Community Enterprise Linux Testing Repository - el7', enabled: 'no', base: 'http://elrepo.org/linux/testing/el7/$basearch/', mirrors: 'http://mirrors.elrepo.org/mirrors-elrepo-testing.el7', key: 'file://{{ dstkey_filepath }}/elrepo.pub' }
+          - { name: 'elrepo-kernel', desc: 'ELRepo.org Community Enterprise Linux Kernel Repository - el7', enabled: 'no', base: 'http://elrepo.org/linux/kernel/el7/$basearch/', mirrors: 'http://mirrors.elrepo.org/mirrors-elrepo-kernel.el7', key: 'file://{{ dstkey_filepath }}/elrepo.pub' }
+          - { name: 'elrepo-extras', desc: 'ELRepo.org Community Enterprise Linux Extras Repository - el7', enabled: 'yes', base: 'http://elrepo.org/linux/extras/el7/$basearch/', mirrors: 'http://mirrors.elrepo.org/mirrors-elrepo-extras.el7', key: '"file://{{ dstkey_filepath }}/elrepo.pub"' }
+          - { name: 'ius-archive', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Archive', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/archive/CentOS/7/$basearch', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-archive&arch=$basearch&protocol=http', key: '"file://{{ dstkey_filepath }}/ius.pub"' }
+          - { name: 'ius-archive-debuginfo', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Archive Debug', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/archive/CentOS/7/$basearch/debuginfo', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-archive-debuginfo&arch=$basearch&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-archive-source', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Archive Source', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/archive/CentOS/7/SRPMS', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-archive-source&arch=source&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-dev', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Dev', enabled: 'yes', base: 'https://dl.iuscommunity.org/pub/ius/development/CentOS/7/$basearch', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-dev&arch=$basearch&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-dev-debuginfo', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Dev Debug Info', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/development/CentOS/7/$basearch/debuginfo', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-dev-debuginfo&arch=$basearch&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-dev-source', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Dev Source', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/development/CentOS/7/SRPMS', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-dev-source&arch=source&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch', enabled: 'yes', base: 'https://dl.iuscommunity.org/pub/ius/stable/CentOS/7/$basearch', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7&arch=$basearch&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-debuginfo', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Debug', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/stable/CentOS/7/$basearch/debuginfo', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-debuginfo&arch=$basearch&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-source', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Source', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/stable/CentOS/7/SRPMS', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-source&arch=source&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-testing', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Testing', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/testing/CentOS/7/$basearch', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-testing&arch=$basearch&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-testing-debuginfo', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Testing Debug', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/testing/CentOS/7/$basearch/debuginfo', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-testing-debuginfo&arch=$basearch&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+          - { name: 'ius-testing-source', desc: 'IUS Community Packages for Enterprise Linux 7 - $basearch - Testing Source', enabled: 'no', base: 'https://dl.iuscommunity.org/pub/ius/testing/CentOS/7/SRPMS', mirrors: 'https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-testing-source&arch=source&protocol=http', key: 'file://{{ dstkey_filepath }}/ius.pub' }
+
+      - yum_repository:
+          name:           "{{ item.name }}"
+          description:    "{{ item.desc }}"
+          enabled:        "{{ item.enabled }}"
+          baseurl:        "{{ item.base }}"
+          gpgkey:         "{{ item.key }}"
+          gpgcheck:       yes
+          file:           "{{ item.name }}"
+        with_items:
+          - { name: 'nux-dextop', desc: 'Nux.Ro RPMs for general desktop use', enabled: 'yes', base: 'http://li.nux.ro/download/nux/dextop/el7/$basearch/ http://mirror.li.nux.ro/li.nux.ro/nux/dextop/el7/$basearch/',  key: 'file://{{ dstkey_filepath }}/nux.pub' }
+          - { name: 'nux-dextop-testing', desc: 'Nux.Ro RPMs for general desktop use - testing', enabled: 'no', base: 'http://li.nux.ro/download/nux/dextop-testing/el7/$basearch/',  key: 'file://{{ dstkey_filepath }}/nux.pub' }
+          - { name: 'ownCloud_desktop', desc: 'ownCloud:desktop (CentOS_7)', enabled: 'yes', base: 'http://download.opensuse.org/repositories/isv:/ownCloud:/desktop/CentOS_7/',  key: 'http://download.opensuse.org/repositories/isv:/ownCloud:/desktop/CentOS_7/repodata/repomd.xml.key' }
+
+      - name:             Shell commands
+        shell:            "{{ item }}"
+        args:
+          chdir:          /tmp
+        with_items:
+          - curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
+          - wget https://atom.io/download/rpm -O atom.rpm
+      - name:             test
+        yum:
+          name:           "{{ item }}"
+          state:          present
+        with_items:
+          - wine
+          - owncloud-client
+          - chromium
+          - nmap
+          - gstreamer1-vaapi
+          - gstreamer1-plugins-ugly
+          - gstreamer1-plugins-good
+          - gstreamer1-plugins-base
+          - gstreamer1-plugins-bad-free
+          - gstreamer1-plugins-bad-free-gtk
+          - gstreamer1-libav
+          - cmake3
+          - git
+          - php71*cli
+          - python*pip
+          - python3*tkinter
+          - curl
+          - deluge
+          - nodejs
+          - /tmp/atom.rpm
+          - make
+      - name:             Installing atom modules
+        apm:              name="{{ item }}" upgrade="true"
+        with_items:
+          - linter
+          - linter-php
+          - linter-eslint
+          - linter-pycodestyle
+          - atom-ternjs
+          - autocomplete-modules
+          - js-hyperclick
+          - linter-ui-default
+          - intentions
+          - busy-signal
+          - platformio-ide-terminal
+          - atom-beautify
+          - minimap
+          - color-picker
+          - sort-lines
+          - hyperclick
+        become_user:      user100
+        become:           true
+      - name:             Install node.js packages
+        npm:
+          name:           "{{ item }}"
+          global:         yes
+        with_items:
+          - babel-cli
+          - eslint-config-airbnb-base
+          - eslint
+          - babel-eslint
+        become_user:      user100
+        become:           true
+      - pip:
+          name:           "{{ item }}"
+          executable:     pip3.6
+        with_items:
+          - autopep8
+          - beautysh
+      when: ansible_distribution == "CentOS"
