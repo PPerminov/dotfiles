@@ -1,10 +1,8 @@
 - hosts:              book02
-  # gather_facts:     yes
+  gather_facts:     yes
   strategy:           free
   become:             yes
   become_method:      sudo
-  # vars:
-    # release:        {{ ansible_lsb.codename }}
   tasks:
   - block:
     - name:           Adding new repos
@@ -181,10 +179,10 @@
         - easysnmp
         - ping3
         - netaddr
-    # - name:         Installing atom modules
-    #   shell:        apm install linter hydrogen linter-php linter-eslint linter-pycodestyle atom-ternjs autocomplete-modules js-hyperclick linter-ui-default intentions busy-signal platformio-ide-terminal atom-beautify minimap color-picker sort-lines hyperclick
-    #   become_user:  user100
-    #   become:       true
+    - name:         Installing atom modules
+      shell:        apm install linter hydrogen linter-php linter-eslint linter-pycodestyle atom-ternjs autocomplete-modules js-hyperclick linter-ui-default intentions busy-signal platformio-ide-terminal atom-beautify minimap color-picker sort-lines hyperclick
+      become_user:  user100
+      become:       true
     - name:           Create directory
       file:
         path:         /tmp/WmIcLiEnT
