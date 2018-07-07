@@ -30,10 +30,57 @@
         state:        present
         reload:       yes
         sysctl_set:   yes
+<<<<<<< HEAD
     - name:           FS inotify
       sysctl:
         name:         fs.inotify.max_user_watches
         value:        524288
+=======
+  - block:
+    - name:           Adding new Ubuntu repos
+      apt_repository:
+        repo:         "{{ item }}"
+        state:        present
+      with_items:
+        - deb http://download.opensuse.org/repositories/isv:/ownCloud:/desktop/{{ ansible_distribution }}_{{ ansible_lsb.release }}/ /
+        - deb http://repository.spotify.com stable non-free
+        - deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+        - deb https://packagecloud.io/slacktechnologies/slack/debian/ jessie main
+        - deb http://ppa.launchpad.net/ansible/ansible/ubuntu {{ ansible_lsb.codename }} main
+        - deb http://ppa.launchpad.net/remmina-ppa-team/remmina-next/ubuntu {{ ansible_lsb.codename }} main
+        - deb https://deb.nodesource.com/node_9.x {{ ansible_lsb.codename }} main
+        - deb http://ppa.launchpad.net/webupd8team/atom/ubuntu {{ ansible_lsb.codename }} main
+        - deb http://ppa.launchpad.net/phoerious/keepassxc/ubuntu {{ ansible_lsb.codename }} main
+    - name:           Adding work ubuntu repository
+      apt_repository:
+        repo:         "{{ item }}"
+        state:        present
+      with_items:
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }}-backports main restricted universe multiverse
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }} main restricted
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }} multiverse
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }} universe
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }}-updates main restricted
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }}-updates multiverse
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }}-updates universe
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }}-security main restricted
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }}-security multiverse
+        - deb [arch=amd64] http://10.53.12.250/ru.archive.ubuntu.com/ {{ ansible_lsb.codename }}-security universe
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }}-backports main restricted universe multiverse
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }} main restricted
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }} multiverse
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }} universe
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }}-updates main restricted
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }}-updates multiverse
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }}-updates universe
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }}-security main restricted
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }}-security multiverse
+        - deb [arch=i386] http://archive.ubuntu.com/ubuntu/ {{ ansible_lsb.codename }}-security universe
+      when:           ansible_env.HOSTNAME.find('ies-holding') == 1
+    - name:           Adding home ubuntu repository
+      apt_repository:
+        repo:         "{{ item }}"
+>>>>>>> 69b7be57735f3a9a1feb1957ee89e0d3b397f2e1
         state:        present
         reload:       yes
         sysctl_set:   yes
